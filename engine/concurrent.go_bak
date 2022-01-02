@@ -1,0 +1,55 @@
+package engine
+
+import "fmt"
+
+type ConcurrentEngine struct {
+	Scheduler Scheduler
+	WorkerNum int
+}
+
+type Scheduler interface {
+	Submit(Request)
+	Run()
+	WorkChan() chan Request
+}
+
+func (c ConcurrentEngine) Run(seeds ...Request) {
+	out := make(chan ParseResult)
+	c.Scheduler.Run()
+
+	for i := 0; i < c.WorkerNum; i++ {
+		createWorker(c.Scheduler.WorkChan(), out)
+	}
+
+	for _, seed := range seeds {
+		fmt.Printf("add request: %s\n", seed.Url)
+		c.Scheduler.Submit(seed)
+	}
+
+	for {
+		result := <-out
+		count := 0
+		for _, v := range result.Request {
+			fmt.Printf("add request: %s \t \t desc:%s\n", v.Url, result.Item[count])
+			c.Scheduler.Submit(Request{
+				Url:        v.Url,
+				ParserFunc: v.ParserFunc,
+			})
+			count++
+		}
+	}
+
+}
+
+func createWorker(in chan Request, out chan ParseResult) {
+	go func() {
+		for {
+			req := <-in
+			result, err := work(req)
+			if err != nil {
+				fmt.Printf("url: %v , error:%s\n", req.Url, err)
+			}
+			out <- result
+		}
+	}()
+}
