@@ -35,7 +35,7 @@ func (c ConcurrentEngine) Run(seeds ...Request) {
 		result := <-out
 		for _, v := range result.Item {
 			itemCount++
-			fmt.Printf("id:%d Got item %v \n", itemCount, v)
+			fmt.Printf("id:%d Got item %+v \n", itemCount, v)
 		}
 
 		for _, v := range result.Request {
