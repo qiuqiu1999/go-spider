@@ -1,9 +1,9 @@
 package parser
 
 import (
+	"go-spider/engine"
+	"go-spider/model"
 	"regexp"
-	"spider/engine"
-	"spider/model"
 	"strconv"
 	"strings"
 )

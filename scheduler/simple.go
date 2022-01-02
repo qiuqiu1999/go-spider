@@ -1,7 +1,7 @@
 package scheduler
 
 import (
-	"spider/engine"
+	"go-spider/engine"
 )
 
 type SimpleScheduler struct {

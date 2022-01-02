@@ -1,6 +1,6 @@
 package engine
 
-import "spider/fetcher"
+import "go-spider/fetcher"
 
 func work(r Request) (ParseResult, error) {
 	bytes, err := fetcher.Fetch(r.Url)

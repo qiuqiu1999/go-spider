@@ -1,8 +1,8 @@
 package parser
 
 import (
+	"go-spider/engine"
 	"regexp"
-	"spider/engine"
 )
 
 var cityListRe = regexp.MustCompile(`<a href="(http://www.zhenai.com/zhenghun/[0-9a-z]+)"[^>]*>([^<]+)</a>`)

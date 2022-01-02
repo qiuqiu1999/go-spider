@@ -1,9 +1,9 @@
 package main
 
 import (
-	"spider/engine"
-	"spider/scheduler"
-	"spider/zhenai/parser"
+	"go-spider/engine"
+	"go-spider/scheduler"
+	"go-spider/zhenai/parser"
 )
 
 func main() {
