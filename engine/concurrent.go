@@ -1,10 +1,13 @@
 package engine
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ConcurrentEngine struct {
 	Scheduler Scheduler
 	WorkerNum int
+	ItemChan  chan Item
 }
 
 type Scheduler interface {
@@ -30,16 +33,16 @@ func (c ConcurrentEngine) Run(seeds ...Request) {
 		fmt.Printf("add request: %s\n", seed.Url)
 		c.Scheduler.Submit(seed)
 	}
-	itemCount := 0
 	for {
 		result := <-out
-		for _, v := range result.Item {
-			itemCount++
-			fmt.Printf("id:%d Got item %+v \n", itemCount, v)
+
+		for _, item := range result.Item {
+			//fmt.Printf("Got item %+v \n", item)
+			item := item
+			go func() { c.ItemChan <- item }()
 		}
 
 		for _, v := range result.Request {
-			//fmt.Printf("id:%d  add request: %s \n", itemCount, v.Url)
 			c.Scheduler.Submit(Request{
 				Url:        v.Url,
 				ParserFunc: v.ParserFunc,
@@ -61,4 +64,15 @@ func createWorker(in chan Request, out chan ParseResult, r ReadyNotifier) {
 			out <- result
 		}
 	}()
+}
+
+var visitedUrls = make(map[string]bool)
+
+//去重
+func isDuplicate(url string) bool {
+	if visitedUrls[url] {
+		return true
+	}
+	visitedUrls[url] = true
+	return false
 }

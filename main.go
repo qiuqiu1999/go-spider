@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-spider/engine"
+	"go-spider/persist"
 	"go-spider/scheduler"
 	"go-spider/zhenai/parser"
 )
@@ -19,6 +20,7 @@ func main() {
 	engine.ConcurrentEngine{
 		Scheduler: &scheduler.QueueScheduler{},
 		WorkerNum: 50,
+		ItemChan: persist.ItemSaver(),
 	}.Run(r)
 
 }
