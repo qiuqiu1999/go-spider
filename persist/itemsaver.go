@@ -5,7 +5,7 @@ import (
 	"go-spider/engine"
 )
 
-func ItemSaver() chan engine.Item {
+func ItemSaver(index string) (chan engine.Item, error) {
 	itemChan := make(chan engine.Item)
 
 	go func() {
@@ -15,5 +15,5 @@ func ItemSaver() chan engine.Item {
 		}
 	}()
 
-	return itemChan
+	return itemChan, nil
 }

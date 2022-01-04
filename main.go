@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/garyburd/redigo/redis"
 	"go-spider/engine"
 	"go-spider/persist"
 	"go-spider/scheduler"
@@ -8,19 +9,25 @@ import (
 )
 
 func main() {
-	r := engine.Request{
-		Url:        "https://www.zhenai.com/zhenghun",
-		ParserFunc: parser.ParseCityList,
+	itemChan, err := persist.ItemSaver("dating_profile")
+	if err != nil {
+		panic(err)
 	}
 
-	/*r := engine.Request{
-		Url:        "https://www.zhenai.com/zhenghun/wuhan/nv",
-		ParserFunc: parser.ParseCity,
-	}*/
+	redisConn, err := redis.Dial("tcp", "127.0.0.1:6379")
+	if err != nil {
+		panic(err)
+	}
+	defer redisConn.Close()
+
 	engine.ConcurrentEngine{
 		Scheduler: &scheduler.QueueScheduler{},
 		WorkerNum: 50,
-		ItemChan: persist.ItemSaver(),
-	}.Run(r)
+		ItemChan:  itemChan,
+		RedisConn: redisConn,
+	}.Run(engine.Request{
+		Url:        "https://www.zhenai.com/zhenghun",
+		ParserFunc: parser.ParseCityList,
+	})
 
 }

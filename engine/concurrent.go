@@ -2,12 +2,14 @@ package engine
 
 import (
 	"fmt"
+	"github.com/garyburd/redigo/redis"
 )
 
 type ConcurrentEngine struct {
 	Scheduler Scheduler
 	WorkerNum int
 	ItemChan  chan Item
+	RedisConn redis.Conn
 }
 
 type Scheduler interface {
@@ -43,10 +45,12 @@ func (c ConcurrentEngine) Run(seeds ...Request) {
 		}
 
 		for _, v := range result.Request {
-			c.Scheduler.Submit(Request{
-				Url:        v.Url,
-				ParserFunc: v.ParserFunc,
-			})
+			if ok := isDuplicate(c.RedisConn, v.Url, "1"); ok {
+				c.Scheduler.Submit(Request{
+					Url:        v.Url,
+					ParserFunc: v.ParserFunc,
+				})
+			}
 		}
 	}
 
@@ -69,10 +73,10 @@ func createWorker(in chan Request, out chan ParseResult, r ReadyNotifier) {
 var visitedUrls = make(map[string]bool)
 
 //去重
-func isDuplicate(url string) bool {
-	if visitedUrls[url] {
-		return true
-	}
-	visitedUrls[url] = true
-	return false
-}
+//func isDuplicate(url string) bool {
+//	if visitedUrls[url] {
+//		return true
+//	}
+//	visitedUrls[url] = true
+//	return false
+//}
