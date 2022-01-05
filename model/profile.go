@@ -4,8 +4,6 @@ import "encoding/json"
 
 //用户基本信息
 type Profile struct {
-	Url        string
-	Id         string
 	Name      string
 	Gender    string
 	Age       int

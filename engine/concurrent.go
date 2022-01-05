@@ -41,16 +41,16 @@ func (c ConcurrentEngine) Run(seeds ...Request) {
 		for _, item := range result.Item {
 			//fmt.Printf("Got item %+v \n", item)
 			item := item
-			go func() { c.ItemChan <- item }()
+			if ok := isDuplicate(c.RedisConn, item.Url, "1"); ok != true {
+				go func() { c.ItemChan <- item }()
+			}
 		}
 
 		for _, v := range result.Request {
-			if ok := isDuplicate(c.RedisConn, v.Url, "1"); ok {
-				c.Scheduler.Submit(Request{
-					Url:        v.Url,
-					ParserFunc: v.ParserFunc,
-				})
-			}
+			c.Scheduler.Submit(Request{
+				Url:        v.Url,
+				ParserFunc: v.ParserFunc,
+			})
 		}
 	}
 
@@ -70,9 +70,8 @@ func createWorker(in chan Request, out chan ParseResult, r ReadyNotifier) {
 	}()
 }
 
-var visitedUrls = make(map[string]bool)
-
 //去重
+//var visitedUrls = make(map[string]bool)
 //func isDuplicate(url string) bool {
 //	if visitedUrls[url] {
 //		return true

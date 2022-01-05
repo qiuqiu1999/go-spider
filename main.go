@@ -14,7 +14,7 @@ func main() {
 		panic(err)
 	}
 
-	redisConn, err := redis.Dial("tcp", "127.0.0.1:6379")
+	redisConn, err := redis.Dial("tcp", "192.168.5.170:6379")
 	if err != nil {
 		panic(err)
 	}
@@ -29,5 +29,4 @@ func main() {
 		Url:        "https://www.zhenai.com/zhenghun",
 		ParserFunc: parser.ParseCityList,
 	})
-
 }
